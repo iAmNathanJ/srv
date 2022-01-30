@@ -1,6 +1,6 @@
 import { join, Key, pathToRegexp } from "./deps.ts";
 import { staticResponse } from "./static.ts";
-import { internalError, notFound } from "./routes.default.ts";
+import { internalError, notFound } from "./router.defaults.ts";
 import { HTTPMethod, MatchedRoute, Route, RouteHandler } from "./types.ts";
 
 const { cwd } = Deno;
