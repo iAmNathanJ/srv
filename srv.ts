@@ -30,14 +30,14 @@ export function srv(options: ServerOptions) {
         request,
         params: route.params,
       }));
-    } catch (e) {
+    } catch (error) {
       respondWith(errorHandler.handle({
         json: utils.json,
         html: utils.html,
         redirect: utils.redirect,
         url,
         request,
-        error: e,
+        error,
       }));
     }
   }
