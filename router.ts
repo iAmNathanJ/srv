@@ -3,8 +3,6 @@ import { staticResponse } from "./static.ts";
 import { internalError, notFound } from "./router.defaults.ts";
 import { HTTPMethod, MatchedRoute, Route, RouteHandler } from "./types.ts";
 
-const { cwd } = Deno;
-
 export function createRouter() {
   const routes: Route[] = [];
   const matchedRouteCache = new Map<string, MatchedRoute>();
@@ -51,7 +49,7 @@ export function createRouter() {
     return route;
   }
 
-  function staticHandler(routePath: string, dir = join(cwd(), "public")) {
+  function staticHandler(routePath: string, dir = join(Deno.cwd(), "public")) {
     const regex = pathToRegexp(routePath, [], { end: false });
     routes.push({
       handle: ({ request, url }) =>
