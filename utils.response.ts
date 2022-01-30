@@ -1,0 +1,49 @@
+import { mime, Status, STATUS_TEXT } from "./deps.ts";
+
+export interface ResponseUtils {
+  json: (body: unknown, init?: ResponseInit) => Response;
+  html: (body: string, init?: ResponseInit) => Response;
+  redirect: (urlOrPath: string, init?: ResponseInit) => Response;
+}
+
+const json: ResponseUtils["json"] = (body, init): Response => {
+  const res = new Response(JSON.stringify(body), {
+    ...init,
+    headers: {
+      "content-type": mime.getType(".json")!,
+      ...init?.headers ?? {},
+    },
+  });
+
+  return res;
+};
+
+const html: ResponseUtils["html"] = (body, init): Response => {
+  return new Response(body, {
+    ...init,
+    headers: {
+      "content-type": mime.getType(".html")!,
+      ...init?.headers ?? {},
+    },
+  });
+};
+
+const redirect: ResponseUtils["redirect"] = (
+  urlOrPath,
+  init,
+): Response => {
+  return new Response(null, {
+    status: init?.status ?? Status.Found,
+    statusText: init?.statusText ?? STATUS_TEXT.get(Status.Found),
+    headers: {
+      ...init?.headers ?? {},
+      location: urlOrPath,
+    },
+  });
+};
+
+export const utils: ResponseUtils = {
+  json,
+  html,
+  redirect,
+};
