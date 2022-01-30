@@ -31,22 +31,22 @@ export function createRouter() {
   }
 
   function match(reqPath: string, req: Request): MatchedRoute {
-    if (matchedRouteCache.has(reqPath)) {
+    if (matchedRouteCache.has(`${req.method}_${reqPath}`)) {
       return matchedRouteCache.get(reqPath)!;
     }
 
     const matchedRoute = routes.find((route) => route.match(reqPath, req));
     const params = getPathParams(
       reqPath,
-      matchedRoute?.regex!,
-      matchedRoute?.paramKeys!,
+      matchedRoute?.paramKeys,
+      matchedRoute?.regex,
     );
 
     const route = matchedRoute
       ? { ...matchedRoute, params }
       : { ...notFound, params, path: reqPath } as MatchedRoute;
 
-    matchedRouteCache.set(reqPath, route);
+    matchedRouteCache.set(`${req.method}_${reqPath}`, route);
 
     return route;
   }
@@ -54,7 +54,6 @@ export function createRouter() {
   function staticHandler(routePath: string, dir = join(cwd(), "public")) {
     const regex = pathToRegexp(routePath, [], { end: false });
     routes.push({
-      // handle: () => new Response("not the file"), // TODO fix this
       handle: ({ request, url }) =>
         staticResponse(request, url, routePath, dir),
       match: (reqPath, req) => (
@@ -107,9 +106,13 @@ function matchMethod(reqMethod: string, routeMethod?: string): boolean {
 
 function getPathParams(
   reqPath: string,
-  routeRegex: RegExp,
-  paramKeys: Key[],
+  paramKeys: Key[] = [],
+  routeRegex?: RegExp,
 ): Record<string, string> {
+  if (!routeRegex) {
+    return {};
+  }
+
   const [match, ...paramValues] = routeRegex.exec(reqPath) ?? [];
 
   if (!match) {

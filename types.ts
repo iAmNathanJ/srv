@@ -1,7 +1,7 @@
 import { Key } from "./deps.ts";
 import { ResponseUtils } from "./utils.response.ts";
 
-interface HandlerArgs extends ResponseUtils {
+export interface HandlerArgs extends ResponseUtils {
   request: Request;
   url: URL;
   params?: Record<string, string>;
