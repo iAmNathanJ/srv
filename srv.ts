@@ -1,6 +1,6 @@
 import { getConfig, ServerOptions } from "./config.ts";
 import { createRouter } from "./router.ts";
-import { utils } from "./utils.response.ts";
+import * as utils from "./utils.response.ts";
 import { RouteHandler } from "./types.ts";
 
 const { listen, serveHttp } = Deno;

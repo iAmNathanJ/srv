@@ -6,7 +6,7 @@ export interface ResponseUtils {
   redirect: (urlOrPath: string, init?: ResponseInit) => Response;
 }
 
-const json: ResponseUtils["json"] = (body, init): Response => {
+export const json: ResponseUtils["json"] = (body, init): Response => {
   const res = new Response(JSON.stringify(body), {
     ...init,
     headers: {
@@ -18,7 +18,7 @@ const json: ResponseUtils["json"] = (body, init): Response => {
   return res;
 };
 
-const html: ResponseUtils["html"] = (body, init): Response => {
+export const html: ResponseUtils["html"] = (body, init): Response => {
   return new Response(body, {
     ...init,
     headers: {
@@ -28,7 +28,7 @@ const html: ResponseUtils["html"] = (body, init): Response => {
   });
 };
 
-const redirect: ResponseUtils["redirect"] = (
+export const redirect: ResponseUtils["redirect"] = (
   urlOrPath,
   init,
 ): Response => {
@@ -40,10 +40,4 @@ const redirect: ResponseUtils["redirect"] = (
       location: urlOrPath,
     },
   });
-};
-
-export const utils: ResponseUtils = {
-  json,
-  html,
-  redirect,
 };
