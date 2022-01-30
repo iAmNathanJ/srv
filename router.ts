@@ -14,22 +14,17 @@ export function createRouter() {
     handle: RouteHandler,
     method = HTTPMethod.ANY,
   ) {
-    const hasParams = routePath.includes(":");
     const paramKeys: Key[] = [];
-    const regex = hasParams ? pathToRegexp(routePath, paramKeys) : /.*/;
+    const regex = pathToRegexp(routePath, paramKeys);
     const route: Route = {
       handle,
       match: (reqPath, req) => (
-        matchMethod(req.method, method) &&
-          hasParams
-          ? regex.test(reqPath)
-          : reqPath === routePath
+        matchMethod(req.method, method) && regex.test(reqPath)
       ),
       path: routePath,
       method,
       regex,
       paramKeys,
-      hasParams,
     };
 
     routes.push(route);
@@ -41,9 +36,11 @@ export function createRouter() {
     }
 
     const matchedRoute = routes.find((route) => route.match(reqPath, req));
-    const params = matchedRoute?.hasParams
-      ? getPathParams(reqPath, matchedRoute?.regex!, matchedRoute?.paramKeys!)
-      : {};
+    const params = getPathParams(
+      reqPath,
+      matchedRoute?.regex!,
+      matchedRoute?.paramKeys!,
+    );
 
     const route = matchedRoute
       ? { ...matchedRoute, params }
@@ -55,22 +52,17 @@ export function createRouter() {
   }
 
   function staticHandler(routePath: string, dir = join(cwd(), "public")) {
-    const hasParams = routePath.includes(":");
     const regex = pathToRegexp(routePath, [], { end: false });
     routes.push({
       // handle: () => new Response("not the file"), // TODO fix this
       handle: ({ request, url }) =>
         staticResponse(request, url, routePath, dir),
       match: (reqPath, req) => (
-        matchMethod(req.method, HTTPMethod.GET) &&
-          hasParams
-          ? regex.test(reqPath)
-          : reqPath === routePath
+        matchMethod(req.method, HTTPMethod.GET) && regex.test(reqPath)
       ),
       method: HTTPMethod.GET,
       path: routePath,
       regex,
-      hasParams,
     });
   }
 

@@ -17,7 +17,6 @@ export interface Route {
   path: string;
   regex?: RegExp;
   paramKeys?: Key[];
-  hasParams: boolean;
 }
 
 export interface MatchedRoute extends Route {
