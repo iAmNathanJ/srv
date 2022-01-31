@@ -64,36 +64,54 @@ export function createRouter() {
     });
   }
 
-  // TODO: implement HEAD
-  function head() {}
+  function createHeadRoute(routePath: string, handle: RouteHandler) {
+    const headHandle: RouteHandler = async (handlerArgs) => {
+      const response = (await handle(handlerArgs));
+      const responseLength = (await response.arrayBuffer()).byteLength;
+      const { status, statusText, headers } = response;
+
+      headers.set("content-length", `${responseLength}`);
+
+      return new Response(null, {
+        status,
+        statusText,
+        headers,
+      });
+    };
+
+    use(routePath, headHandle, HTTPMethod.HEAD);
+  }
 
   // TODO: implement OPTIONS
   function options() {}
 
   return {
+    routes,
     match,
     use,
     static: staticHandler,
     get(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.GET);
+      use(routePath, handler, HTTPMethod.GET);
+      createHeadRoute(routePath, handler);
     },
     post(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.POST);
+      use(routePath, handler, HTTPMethod.POST);
+      createHeadRoute(routePath, handler);
     },
     put(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.PUT);
+      use(routePath, handler, HTTPMethod.PUT);
+      createHeadRoute(routePath, handler);
     },
     patch(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.PATCH);
+      use(routePath, handler, HTTPMethod.PATCH);
+      createHeadRoute(routePath, handler);
     },
     delete(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.DELETE);
+      use(routePath, handler, HTTPMethod.DELETE);
+      createHeadRoute(routePath, handler);
     },
     options(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.OPTIONS);
-    },
-    head(routePath: string, handler: RouteHandler) {
-      return this.use(routePath, handler, HTTPMethod.HEAD);
+      use(routePath, handler, HTTPMethod.OPTIONS);
     },
     internalError,
   };
