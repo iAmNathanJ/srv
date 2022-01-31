@@ -49,10 +49,8 @@ app.get("/params/:first/:last", ({ json, params, url, request }) => {
   return res;
 });
 
-app.get("/home", ({ json, params, url, request }) => {
+app.get("/home", ({ json, params, url }) => {
   const { searchParams } = url;
-
-  console.log(getCookies(request.headers));
 
   return json({
     params,

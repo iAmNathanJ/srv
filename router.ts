@@ -29,8 +29,9 @@ export function createRouter() {
   }
 
   function match(reqPath: string, req: Request): MatchedRoute {
-    if (matchedRouteCache.has(`${req.method}_${reqPath}`)) {
-      return matchedRouteCache.get(reqPath)!;
+    const cacheKey = `${req.method}_${reqPath}`;
+    if (matchedRouteCache.has(cacheKey)) {
+      return matchedRouteCache.get(cacheKey)!;
     }
 
     const matchedRoute = routes.find((route) => route.match(reqPath, req));
@@ -44,7 +45,7 @@ export function createRouter() {
       ? { ...matchedRoute, params }
       : { ...notFound, params, path: reqPath } as MatchedRoute;
 
-    matchedRouteCache.set(`${req.method}_${reqPath}`, route);
+    matchedRouteCache.set(cacheKey, route);
 
     return route;
   }
