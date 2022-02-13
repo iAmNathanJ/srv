@@ -1,6 +1,6 @@
 import { getConfig, ServerOptions } from "./config.ts";
 import { createRouter } from "./router.ts";
-import * as utils from "./utils.response.ts";
+import * as utils from "./response.utils.ts";
 import { RouteHandler } from "./types.ts";
 
 export function srv(options: ServerOptions) {

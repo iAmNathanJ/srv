@@ -1,4 +1,4 @@
-import { ResponseUtils } from "./utils.response.ts";
+import { ResponseUtils } from "./response.utils.ts";
 
 export interface HandlerArgs extends ResponseUtils {
   request: Request;

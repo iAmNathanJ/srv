@@ -1,6 +1,6 @@
 import { staticResponse } from "./static.ts";
 import { internalError, notFound } from "./router.defaults.ts";
-import { createMatcher, validateRoutePath } from "./utils.router.ts";
+import { createMatcher, validateRoutePath } from "./router.utils.ts";
 import { HTTPMethod, MatchedRoute, Route, RouteHandler } from "./types.ts";
 
 export function createRouter() {

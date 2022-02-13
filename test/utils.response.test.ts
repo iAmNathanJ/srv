@@ -1,5 +1,5 @@
 import { assertEquals } from "./deps.ts";
-import { html, json, redirect } from "../utils.response.ts";
+import { html, json, redirect } from "../response.utils.ts";
 
 const { test } = Deno;
 
