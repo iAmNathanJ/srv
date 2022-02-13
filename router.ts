@@ -1,6 +1,6 @@
-import { join, Key, pathToRegexp } from "./deps.ts";
 import { staticResponse } from "./static.ts";
 import { internalError, notFound } from "./router.defaults.ts";
+import { createMatcher, validateRoutePath } from "./utils.router.ts";
 import { HTTPMethod, MatchedRoute, Route, RouteHandler } from "./types.ts";
 
 export function createRouter() {
@@ -12,17 +12,15 @@ export function createRouter() {
     handle: RouteHandler,
     method = HTTPMethod.ANY,
   ) {
-    const paramKeys: Key[] = [];
-    const regex = pathToRegexp(routePath, paramKeys);
+    validateRoutePath(routePath);
+
+    const match = createMatcher(routePath, method);
+
     const route: Route = {
       handle,
-      match: (reqPath, req) => (
-        matchMethod(req.method, method) && regex.test(reqPath)
-      ),
-      path: routePath,
+      match,
       method,
-      regex,
-      paramKeys,
+      path: routePath,
     };
 
     routes.push(route);
@@ -34,33 +32,34 @@ export function createRouter() {
       return matchedRouteCache.get(cacheKey)!;
     }
 
-    const matchedRoute = routes.find((route) => route.match(reqPath, req));
-    const params = getPathParams(
-      reqPath,
-      matchedRoute?.paramKeys,
-      matchedRoute?.regex,
-    );
+    let matchedRoute: MatchedRoute;
+    for (const route of routes) {
+      const { isMatch, params } = route.match(reqPath, req.method);
 
-    const route = matchedRoute
-      ? { ...matchedRoute, params }
-      : { ...notFound, params, path: reqPath } as MatchedRoute;
+      if (isMatch) {
+        matchedRoute = {
+          ...route,
+          params,
+        };
+        break;
+      }
+    }
+
+    const route = matchedRoute! ?? { ...notFound, path: reqPath };
 
     matchedRouteCache.set(cacheKey, route);
 
     return route;
   }
 
-  function staticHandler(routePath: string, dir = join(Deno.cwd(), "public")) {
-    const regex = pathToRegexp(routePath, [], { end: false });
+  function staticHandler(routePath: string, dir = Deno.cwd()) {
+    const match = createMatcher(routePath, HTTPMethod.GET, false);
     routes.push({
       handle: ({ request, url }) =>
         staticResponse(request, url, routePath, dir),
-      match: (reqPath, req) => (
-        matchMethod(req.method, HTTPMethod.GET) && regex.test(reqPath)
-      ),
+      match,
       method: HTTPMethod.GET,
       path: routePath,
-      regex,
     });
   }
 
@@ -115,29 +114,4 @@ export function createRouter() {
     },
     internalError,
   };
-}
-
-function matchMethod(reqMethod: string, routeMethod?: string): boolean {
-  return routeMethod === reqMethod || routeMethod === HTTPMethod.ANY;
-}
-
-function getPathParams(
-  reqPath: string,
-  paramKeys: Key[] = [],
-  routeRegex?: RegExp,
-): Record<string, string> {
-  if (!routeRegex) {
-    return {};
-  }
-
-  const [match, ...paramValues] = routeRegex.exec(reqPath) ?? [];
-
-  if (!match) {
-    return {};
-  }
-
-  return paramValues.reduce((params, paramValue, i) => ({
-    ...params,
-    [paramKeys[i].name]: decodeURIComponent(paramValue),
-  }), {});
 }

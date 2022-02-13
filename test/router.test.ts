@@ -49,6 +49,12 @@ test("router can use one handler for all methods", () => {
   assertEquals(router.match("/", requests.DELETE).handle, handlers.GET);
 });
 
+// test("router can handle paths with all valid characters", () => {
+//   // a-z A-Z 0-9 . - _ ~ ! $ & ' ( ) * + , ; = : @
+// });
+
+// test("router can use one handler for all paths");
+
 test("router parses path params", () => {
   const router = createRouter();
 

@@ -1,4 +1,3 @@
-import { Key } from "./deps.ts";
 import { ResponseUtils } from "./utils.response.ts";
 
 export interface HandlerArgs extends ResponseUtils {
@@ -10,17 +9,20 @@ export interface HandlerArgs extends ResponseUtils {
 
 export type RouteHandler = (args: HandlerArgs) => Response | Promise<Response>;
 
+export type RouteMatcher = (reqPath: string, reqMethod: string) => {
+  isMatch: boolean;
+  params?: Record<string, string>;
+};
+
 export interface Route {
   handle: RouteHandler;
-  match: (reqPath: string, req: Request) => boolean;
+  match: RouteMatcher;
   method: HTTPMethod;
   path: string;
-  regex?: RegExp;
-  paramKeys?: Key[];
 }
 
 export interface MatchedRoute extends Route {
-  params: Record<string, string>;
+  params?: Record<string, string>;
 }
 
 export enum HTTPMethod {

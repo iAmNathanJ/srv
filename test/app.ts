@@ -19,6 +19,10 @@ app.get("/", () => {
   return new Response("root", { headers });
 });
 
+app.get("/foo", ({ html }) => {
+  return html("works");
+});
+
 app.get("/api", ({ json }) => {
   return json({
     hello: true,
@@ -27,8 +31,6 @@ app.get("/api", ({ json }) => {
 
 app.get("/params/:first/:last", ({ json, params, url, request }) => {
   const { searchParams } = url;
-
-  console.log(getCookies(request.headers));
 
   const res = json({
     params,
