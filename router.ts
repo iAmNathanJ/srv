@@ -26,15 +26,15 @@ export function createRouter() {
     routes.push(route);
   }
 
-  function match(reqPath: string, req: Request): MatchedRoute {
-    const cacheKey = `${req.method}_${reqPath}`;
+  function match(reqPath: string, reqMethod: string): MatchedRoute {
+    const cacheKey = `${reqMethod}_${reqPath}`;
     if (matchedRouteCache.has(cacheKey)) {
       return matchedRouteCache.get(cacheKey)!;
     }
 
     let matchedRoute: MatchedRoute;
     for (const route of routes) {
-      const { isMatch, params } = route.match(reqPath, req.method);
+      const { isMatch, params } = route.match(reqPath, reqMethod);
 
       if (isMatch) {
         matchedRoute = {
