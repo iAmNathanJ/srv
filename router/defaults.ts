@@ -1,4 +1,4 @@
-import { Status, STATUS_TEXT } from "./deps.ts";
+import { Status, STATUS_TEXT } from "../deps/prod.ts";
 import { HTTPMethod, Route, RouteHandler } from "./types.ts";
 
 export const notFound: Partial<Route> = {

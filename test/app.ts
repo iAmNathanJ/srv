@@ -1,5 +1,5 @@
 import { srv } from "../mod.ts";
-import { deleteCookie, getCookies, setCookie } from "../deps.ts";
+import { deleteCookie, getCookies, setCookie } from "../deps/prod.ts";
 
 const app = srv({ port: 8000 });
 

@@ -1,7 +1,7 @@
-import { assertEquals } from "./deps.ts";
-import { createRouter } from "../router.ts";
-import { notFound } from "../router.defaults.ts";
-import { HandlerArgs, HTTPMethod } from "../types.ts";
+import { assertEquals } from "../deps/dev.ts";
+import { createRouter } from "./router.ts";
+import { notFound } from "./defaults.ts";
+import { HandlerArgs, HTTPMethod } from "./types.ts";
 
 const { test } = Deno;
 

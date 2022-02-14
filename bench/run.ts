@@ -1,8 +1,8 @@
 import { PORT } from "./config.ts";
 
-await test("abc");
-await test("aqua");
-await test("drash");
+// await test("abc");
+// await test("aqua");
+// await test("drash");
 await test("oak");
 await test("srv");
 // await test("opine"); // not working

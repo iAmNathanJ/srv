@@ -1,11 +1,11 @@
-import { staticResponse } from "./static.ts";
-import { internalError, notFound } from "./router.defaults.ts";
-import { createMatcher, validateRoutePath } from "./router.utils.ts";
-import { HTTPMethod, MatchedRoute, Route, RouteHandler } from "./types.ts";
+import { internalError, notFound } from "./defaults.ts";
+import { createMatcher, validateRoutePath } from "./utils.ts";
+import { HTTPMethod, ParsedRoute, Route, RouteHandler } from "./types.ts";
+import { staticResponse } from "../utils/static.ts";
 
 export function createRouter() {
   const routes: Route[] = [];
-  const matchedRouteCache = new Map<string, MatchedRoute>();
+  const parsedRouteCache = new Map<string, ParsedRoute>();
 
   function use(
     routePath: string,
@@ -26,18 +26,18 @@ export function createRouter() {
     routes.push(route);
   }
 
-  function match(reqPath: string, reqMethod: string): MatchedRoute {
+  function match(reqPath: string, reqMethod: string): ParsedRoute {
     const cacheKey = `${reqMethod}_${reqPath}`;
-    if (matchedRouteCache.has(cacheKey)) {
-      return matchedRouteCache.get(cacheKey)!;
+    if (parsedRouteCache.has(cacheKey)) {
+      return parsedRouteCache.get(cacheKey)!;
     }
 
-    let matchedRoute: MatchedRoute;
+    let parsedRoute: ParsedRoute;
     for (const route of routes) {
       const { isMatch, params } = route.match(reqPath, reqMethod);
 
       if (isMatch) {
-        matchedRoute = {
+        parsedRoute = {
           ...route,
           params,
         };
@@ -45,9 +45,9 @@ export function createRouter() {
       }
     }
 
-    const route = matchedRoute! ?? { ...notFound, path: reqPath };
+    const route = parsedRoute! ?? { ...notFound, path: reqPath };
 
-    matchedRouteCache.set(cacheKey, route);
+    parsedRouteCache.set(cacheKey, route);
 
     return route;
   }

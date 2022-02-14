@@ -1,4 +1,4 @@
-import { mime, Status, STATUS_TEXT } from "./deps.ts";
+import { mime, Status, STATUS_TEXT } from "../deps/prod.ts";
 
 export interface ResponseUtils {
   json: (body: unknown, init?: ResponseInit) => Response;

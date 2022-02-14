@@ -1,6 +1,6 @@
-import { assert, assertEquals, assertThrows } from "./deps.ts";
-import { createMatcher, validateRoutePath } from "../router.utils.ts";
-import { HTTPMethod } from "../types.ts";
+import { assert, assertEquals, assertThrows } from "../deps/dev.ts";
+import { createMatcher, validateRoutePath } from "./utils.ts";
+import { HTTPMethod } from "./types.ts";
 
 const { test } = Deno;
 

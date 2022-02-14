@@ -1,4 +1,4 @@
-import { join, serveFile } from "./deps.ts";
+import { join, serveFile } from "../deps/prod.ts";
 
 export function staticResponse(
   req: Request,

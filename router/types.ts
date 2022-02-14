@@ -1,4 +1,4 @@
-import { ResponseUtils } from "./response.utils.ts";
+import { ResponseUtils } from "../utils/response.ts";
 
 export interface HandlerArgs extends ResponseUtils {
   request: Request;
@@ -21,7 +21,7 @@ export interface Route {
   path: string;
 }
 
-export interface MatchedRoute extends Route {
+export interface ParsedRoute extends Route {
   params?: Record<string, string>;
 }
 

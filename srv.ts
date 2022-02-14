@@ -1,7 +1,7 @@
-import { getConfig, ServerOptions } from "./config.ts";
-import { createRouter } from "./router.ts";
-import * as utils from "./response.utils.ts";
-import { RouteHandler } from "./types.ts";
+import { getConfig, ServerOptions } from "./config/boot.ts";
+import { createRouter } from "./router/router.ts";
+import { RouteHandler } from "./router/types.ts";
+import * as utils from "./utils/response.ts";
 
 export function srv(options: ServerOptions) {
   const { location, controller } = getConfig(options);
