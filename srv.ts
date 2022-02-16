@@ -18,7 +18,7 @@ export function srv(options: ServerOptions) {
 
   function handleRequest({ request, respondWith }: Deno.RequestEvent): void {
     const url = new URL(request.url);
-    const route = router.match(url.pathname, request.method);
+    const route = router.find(url.pathname, request.method);
 
     try {
       respondWith(route.handle({

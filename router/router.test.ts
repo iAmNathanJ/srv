@@ -22,11 +22,11 @@ test("router ensures the request method matches the invoked handler", () => {
   router.patch("/", handlers.PATCH);
   router.delete("/", handlers.DELETE);
 
-  assertEquals(router.match("/", HTTPMethod.GET).handle, handlers.GET);
-  assertEquals(router.match("/", HTTPMethod.POST).handle, handlers.POST);
-  assertEquals(router.match("/", HTTPMethod.PUT).handle, handlers.PUT);
-  assertEquals(router.match("/", HTTPMethod.PATCH).handle, handlers.PATCH);
-  assertEquals(router.match("/", HTTPMethod.DELETE).handle, handlers.DELETE);
+  assertEquals(router.find("/", HTTPMethod.GET).handle, handlers.GET);
+  assertEquals(router.find("/", HTTPMethod.POST).handle, handlers.POST);
+  assertEquals(router.find("/", HTTPMethod.PUT).handle, handlers.PUT);
+  assertEquals(router.find("/", HTTPMethod.PATCH).handle, handlers.PATCH);
+  assertEquals(router.find("/", HTTPMethod.DELETE).handle, handlers.DELETE);
 });
 
 test("router can use one handler for all methods", () => {
@@ -34,11 +34,11 @@ test("router can use one handler for all methods", () => {
 
   router.use("/", handlers.GET);
 
-  assertEquals(router.match("/", HTTPMethod.GET).handle, handlers.GET);
-  assertEquals(router.match("/", HTTPMethod.POST).handle, handlers.GET);
-  assertEquals(router.match("/", HTTPMethod.PUT).handle, handlers.GET);
-  assertEquals(router.match("/", HTTPMethod.PATCH).handle, handlers.GET);
-  assertEquals(router.match("/", HTTPMethod.DELETE).handle, handlers.GET);
+  assertEquals(router.find("/", HTTPMethod.GET).handle, handlers.GET);
+  assertEquals(router.find("/", HTTPMethod.POST).handle, handlers.GET);
+  assertEquals(router.find("/", HTTPMethod.PUT).handle, handlers.GET);
+  assertEquals(router.find("/", HTTPMethod.PATCH).handle, handlers.GET);
+  assertEquals(router.find("/", HTTPMethod.DELETE).handle, handlers.GET);
 });
 
 // test("router can handle paths with all valid characters", () => {
@@ -52,7 +52,7 @@ test("router parses path params", () => {
 
   router.use("/:param1/:param2", () => new Response());
 
-  const route = router.match("/first/second", HTTPMethod.ANY);
+  const route = router.find("/first/second", HTTPMethod.ANY);
 
   assertEquals(route.params, { param1: "first", param2: "second" });
 });
@@ -60,7 +60,7 @@ test("router parses path params", () => {
 test("router has a default 404 handler", () => {
   const router = createRouter();
 
-  const route = router.match("/nothing/here", HTTPMethod.ANY);
+  const route = router.find("/nothing/here", HTTPMethod.ANY);
 
   assertEquals(route.handle, notFound.handle);
 });
@@ -74,7 +74,7 @@ test("router serves static content", async () => {
   const imageURL = new URL(imagePath, "http://localhost");
   const imageRequest = new Request(imageURL.href);
 
-  const route = router.match(imagePath, HTTPMethod.GET);
+  const route = router.find(imagePath, HTTPMethod.GET);
 
   const imageResponse = await route.handle({
     url: imageURL,
@@ -95,7 +95,7 @@ test("router automatically provides HEAD requests", async () => {
     return actualResponse;
   });
 
-  const headRoute = router.match("/", HTTPMethod.HEAD);
+  const headRoute = router.find("/", HTTPMethod.HEAD);
 
   const headResponse = await headRoute.handle({} as HandlerArgs);
 

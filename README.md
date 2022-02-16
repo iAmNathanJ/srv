@@ -130,9 +130,9 @@ continues, performance will be a key consideration.
 
 ## TODO
 
-- [ ] router optimization - route match caching? Radix tree? Nested routes?
+- [ ] router optimization - LRU caching? Radix tree? Nested routes?
 
-- [ ] automatic HEAD responses
+- [x] automatic HEAD responses
 - [ ] automatic OPTIONS responses
 - [ ] automatic 405 responses
 

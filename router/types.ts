@@ -9,7 +9,7 @@ export interface HandlerArgs extends ResponseUtils {
 
 export type RouteHandler = (args: HandlerArgs) => Response | Promise<Response>;
 
-export type RouteMatcher = (reqPath: string, reqMethod: string) => {
+export type RouteMatcher = (reqPath: string) => {
   isMatch: boolean;
   params?: Record<string, string>;
 };
@@ -17,8 +17,6 @@ export type RouteMatcher = (reqPath: string, reqMethod: string) => {
 export interface Route {
   handle: RouteHandler;
   match: RouteMatcher;
-  method: HTTPMethod;
-  path: string;
 }
 
 export interface ParsedRoute extends Route {

@@ -1,11 +1,19 @@
 import { internalError, notFound } from "./defaults.ts";
-import { createMatcher, validateRoutePath } from "./utils.ts";
+import { createHEAD, createMatcher, validateRoutePath } from "./utils.ts";
 import { HTTPMethod, ParsedRoute, Route, RouteHandler } from "./types.ts";
 import { staticResponse } from "../utils/static.ts";
 
 export function createRouter() {
-  const routes: Route[] = [];
+  const routes: Partial<Record<HTTPMethod, Route[]>> = {};
   const parsedRouteCache = new Map<string, ParsedRoute>();
+
+  function addRoute(route: Route, method: HTTPMethod) {
+    if (!Array.isArray(routes[method])) {
+      routes[method] = [];
+    }
+
+    routes[method]!.push(route);
+  }
 
   function use(
     routePath: string,
@@ -14,38 +22,43 @@ export function createRouter() {
   ) {
     validateRoutePath(routePath);
 
-    const match = createMatcher(routePath, method);
+    const match = createMatcher(routePath);
 
-    const route: Route = {
-      handle,
-      match,
-      method,
-      path: routePath,
-    };
-
-    routes.push(route);
+    addRoute({ handle, match }, method);
+    addRoute({ handle: createHEAD(handle), match }, HTTPMethod.HEAD);
   }
 
-  function match(reqPath: string, reqMethod: string): ParsedRoute {
+  function find(reqPath: string, reqMethod: string): ParsedRoute {
     const cacheKey = `${reqMethod}_${reqPath}`;
     if (parsedRouteCache.has(cacheKey)) {
       return parsedRouteCache.get(cacheKey)!;
     }
 
     let parsedRoute: ParsedRoute;
-    for (const route of routes) {
-      const { isMatch, params } = route.match(reqPath, reqMethod);
+
+    // check explicit method first
+    for (const route of routes[reqMethod as HTTPMethod] ?? []) {
+      const { isMatch, params } = route.match(reqPath);
 
       if (isMatch) {
-        parsedRoute = {
-          ...route,
-          params,
-        };
+        parsedRoute = route;
+        parsedRoute.params = params;
         break;
       }
     }
 
-    const route = parsedRoute! ?? { ...notFound, path: reqPath };
+    // check wildcard method second
+    for (const route of routes[HTTPMethod.ANY] ?? []) {
+      const { isMatch, params } = route.match(reqPath);
+
+      if (isMatch) {
+        parsedRoute = route;
+        parsedRoute.params = params;
+        break;
+      }
+    }
+
+    const route = parsedRoute! ?? notFound;
 
     parsedRouteCache.set(cacheKey, route);
 
@@ -53,32 +66,11 @@ export function createRouter() {
   }
 
   function staticHandler(routePath: string, dir = Deno.cwd()) {
-    const match = createMatcher(routePath, HTTPMethod.GET, false);
-    routes.push({
+    addRoute({
       handle: ({ request, url }) =>
         staticResponse(request, url, routePath, dir),
-      match,
-      method: HTTPMethod.GET,
-      path: routePath,
-    });
-  }
-
-  function createHeadRoute(routePath: string, handle: RouteHandler) {
-    const headHandle: RouteHandler = async (handlerArgs) => {
-      const response = (await handle(handlerArgs));
-      const responseLength = (await response.arrayBuffer()).byteLength;
-      const { status, statusText, headers } = response;
-
-      headers.set("content-length", `${responseLength}`);
-
-      return new Response(null, {
-        status,
-        statusText,
-        headers,
-      });
-    };
-
-    use(routePath, headHandle, HTTPMethod.HEAD);
+      match: createMatcher(routePath, false),
+    }, HTTPMethod.GET);
   }
 
   // TODO: implement OPTIONS
@@ -86,28 +78,23 @@ export function createRouter() {
 
   return {
     routes,
-    match,
+    find,
     use,
     static: staticHandler,
     get(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.GET);
-      createHeadRoute(routePath, handler);
     },
     post(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.POST);
-      createHeadRoute(routePath, handler);
     },
     put(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.PUT);
-      createHeadRoute(routePath, handler);
     },
     patch(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.PATCH);
-      createHeadRoute(routePath, handler);
     },
     delete(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.DELETE);
-      createHeadRoute(routePath, handler);
     },
     options(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.OPTIONS);

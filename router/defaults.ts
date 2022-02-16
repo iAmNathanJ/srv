@@ -1,5 +1,5 @@
 import { Status, STATUS_TEXT } from "../deps/prod.ts";
-import { HTTPMethod, Route, RouteHandler } from "./types.ts";
+import { Route, RouteHandler } from "./types.ts";
 
 export const notFound: Partial<Route> = {
   handle() {
@@ -10,7 +10,6 @@ export const notFound: Partial<Route> = {
       },
     );
   },
-  method: HTTPMethod.ANY,
 };
 
 export const internalError: { handle: RouteHandler } = {
