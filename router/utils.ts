@@ -1,4 +1,10 @@
-import { HandlerArgs, RouteHandler, RouteMatcher } from "./types.ts";
+import {
+  HandlerArgs,
+  HTTPMethod,
+  RouteHandler,
+  RouteMatcher,
+  Routes,
+} from "./types.ts";
 
 // characters allowed in path segments: . * + $ ( ) - _ ~ ! & ' , : ; = @
 // OR encoded %\d\d
@@ -55,6 +61,23 @@ export function createHEAD(handle: RouteHandler): RouteHandler {
       status,
       statusText,
       headers,
+    });
+  };
+}
+
+export function createOPTIONS(routes: Routes): RouteHandler {
+  return (handlerArgs: HandlerArgs) => {
+    const allow = Object.keys(routes).filter((method) => {
+      return routes[method as HTTPMethod]?.some((route) =>
+        route.match(handlerArgs.url.pathname)
+      );
+    }).join(", ");
+
+    return new Response(null, {
+      status: 204,
+      headers: {
+        allow,
+      },
     });
   };
 }

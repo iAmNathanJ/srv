@@ -33,3 +33,5 @@ export enum HTTPMethod {
   HEAD = "HEAD",
   ANY = "*",
 }
+
+export type Routes = Partial<Record<HTTPMethod, Route[]>>;

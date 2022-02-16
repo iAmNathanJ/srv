@@ -1,10 +1,21 @@
 import { internalError, notFound } from "./defaults.ts";
-import { createHEAD, createMatcher, validateRoutePath } from "./utils.ts";
-import { HTTPMethod, ParsedRoute, Route, RouteHandler } from "./types.ts";
+import {
+  createHEAD,
+  createMatcher,
+  createOPTIONS,
+  validateRoutePath,
+} from "./utils.ts";
+import {
+  HTTPMethod,
+  ParsedRoute,
+  Route,
+  RouteHandler,
+  Routes,
+} from "./types.ts";
 import { staticResponse } from "../utils/static.ts";
 
 export function createRouter() {
-  const routes: Partial<Record<HTTPMethod, Route[]>> = {};
+  const routes: Routes = {};
   const parsedRouteCache = new Map<string, ParsedRoute>();
 
   function addRoute(route: Route, method: HTTPMethod) {
@@ -26,6 +37,7 @@ export function createRouter() {
 
     addRoute({ handle, match }, method);
     addRoute({ handle: createHEAD(handle), match }, HTTPMethod.HEAD);
+    addRoute({ handle: createOPTIONS(routes), match }, HTTPMethod.OPTIONS);
   }
 
   function find(reqPath: string, reqMethod: string): ParsedRoute {
@@ -77,6 +89,7 @@ export function createRouter() {
   function options() {}
 
   return {
+    internalError,
     routes,
     find,
     use,
@@ -96,9 +109,5 @@ export function createRouter() {
     delete(routePath: string, handler: RouteHandler) {
       use(routePath, handler, HTTPMethod.DELETE);
     },
-    options(routePath: string, handler: RouteHandler) {
-      use(routePath, handler, HTTPMethod.OPTIONS);
-    },
-    internalError,
   };
 }
