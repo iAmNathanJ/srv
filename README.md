@@ -130,13 +130,12 @@ continues, performance will be a key consideration.
 
 ## TODO
 
-- [ ] router optimization - LRU caching? Radix tree? Nested routes?
-
 - [x] automatic HEAD responses
-- [ ] automatic OPTIONS responses
+- [x] automatic OPTIONS responses
 - [ ] automatic 405 responses
 
-- [ ] cookie parsing, encoding, decoding
+- [ ] cookie parsing, (encoding/decoding?)
+- [ ] cookie signing/verification with key rotation
 - [ ] form data parsing
 
 - [ ] middleware? how to compose functionality against all routes is under
@@ -145,5 +144,8 @@ continues, performance will be a key consideration.
 - [ ] etag
 - [ ] vary
 - [ ] CSP
+- [ ] server sent events
 
 - [ ] logging
+
+- [ ] optimizations - LRU cache? workers?
