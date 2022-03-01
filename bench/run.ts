@@ -1,4 +1,4 @@
-import { PORT } from "./config.ts";
+import { CONNECTIONS, DURATION, PORT, THREADS } from "./config.ts";
 
 // await test("abc");
 // await test("aqua");
@@ -18,9 +18,11 @@ async function test(framework: string) {
   // just give it a sec
   await new Promise((resolve) => setTimeout(resolve, 3000));
   await Deno.run({
-    cmd: `wrk http://0.0.0.0:${PORT}/ -d 3 -c 50 -t 8`.split(
-      " ",
-    ),
+    cmd:
+      `wrk http://0.0.0.0:${PORT}/ -d ${DURATION} -c ${CONNECTIONS} -t ${THREADS}`
+        .split(
+          " ",
+        ),
   }).status();
 
   server.kill("SIGTERM");
