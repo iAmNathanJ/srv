@@ -3,6 +3,8 @@ import { PORT } from "./config.ts";
 
 const app = srv({ port: PORT });
 
-app.get("/", ({ html }) => html("root"));
+app.get("/", ({ response }) => {
+  response.setBody("root");
+});
 
 app.listen();

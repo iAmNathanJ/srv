@@ -1,18 +1,15 @@
 import { Status, STATUS_TEXT } from "../deps/prod.ts";
-import { Route, RouteHandler } from "./types.ts";
+import { ErrorRouteHandler, Route } from "./types.ts";
 
 export const notFound: Partial<Route> = {
-  handle() {
-    return new Response(
-      `${Status.NotFound} ${STATUS_TEXT.get(Status.NotFound)}`,
-      {
-        status: Status.NotFound,
-      },
-    );
+  handle({ response }) {
+    response.setStatus(Status.NotFound);
+    response.setBody(`${Status.NotFound} ${STATUS_TEXT.get(Status.NotFound)}`);
   },
 };
 
-export const internalError: { handle: RouteHandler } = {
+// TODO: refactor to use SrvResponse
+export const internalError: { handle: ErrorRouteHandler } = {
   handle({ error = { stack: "" } }) {
     return new Response(
       `

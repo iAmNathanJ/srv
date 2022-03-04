@@ -2,6 +2,7 @@ import { assertEquals } from "../deps/dev.ts";
 import { createRouter } from "./router.ts";
 import { notFound } from "./defaults.ts";
 import { HandlerArgs, HTTPMethod } from "./types.ts";
+import { SrvResponse } from "../utils/response.ts";
 
 const { test } = Deno;
 
@@ -71,39 +72,19 @@ test("router serves static content", async () => {
   router.static("/public", "test/public");
 
   const imagePath = "/public/denologo.svg";
-  const imageURL = new URL(imagePath, "http://localhost");
-  const imageRequest = new Request(imageURL.href);
+  const url = new URL(imagePath, "http://localhost");
+  const request = new Request(url.href);
+  const response = new SrvResponse();
 
   const route = router.find(imagePath, HTTPMethod.GET);
 
-  const imageResponse = await route.handle({
-    url: imageURL,
-    request: imageRequest,
+  await route.handle({
+    url,
+    request,
+    response,
   } as HandlerArgs);
 
-  const image = await imageResponse.blob();
+  const image = await response.final().blob();
 
   assertEquals(image.type, "image/svg+xml");
 });
-
-test("router automatically provides HEAD requests", async () => {
-  const router = createRouter();
-
-  router.get("/", () => {
-    const actualResponse = new Response("0123456789");
-    actualResponse.headers.set("content-type", "text/html");
-    return actualResponse;
-  });
-
-  const headRoute = router.find("/", HTTPMethod.HEAD);
-
-  const headResponse = await headRoute.handle({} as HandlerArgs);
-
-  assertEquals(headResponse.body, null);
-  assertEquals(headResponse.headers.get("content-type"), "text/html");
-  assertEquals(headResponse.headers.get("content-length"), "10");
-});
-
-// test("router automatically provides OPTIONS requests", async () => {
-//   const router = createRouter();
-// });

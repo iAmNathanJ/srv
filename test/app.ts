@@ -1,68 +1,53 @@
-import { srv } from "../mod.ts";
-import { deleteCookie, getCookies, setCookie } from "../deps/prod.ts";
+import { createEventSource, srv } from "../mod.ts";
 
 const app = srv({ port: 8000 });
 
 app.static("/public", "test/public");
 
-app.get("/", () => {
-  const headers = new Headers();
-
-  setCookie(headers, {
-    name: "fromtheserver",
-    value: encodeURIComponent("encoded or not"),
-    sameSite: "Lax",
-    httpOnly: true,
-    secure: true,
-  });
-
-  return new Response("root", { headers });
+app.get("/", ({ response }) => {
+  response.setBody("root");
 });
 
-app.get("/foo", ({ html }) => {
-  return html("works");
+app.get("/foo", ({ response }) => {
+  response.html("works");
 });
 
-app.get("/api", ({ json }) => {
-  return json({
+app.get("/api", ({ response }) => {
+  response.json({
     hello: true,
   });
 });
 
-app.get("/params/:first/:last", ({ json, params, url, request }) => {
+app.get("/params/:first/:last", ({ params, url, response }) => {
   const { searchParams } = url;
 
-  const res = json({
-    params,
-    query: Object.fromEntries(searchParams),
-  });
-
-  deleteCookie(res.headers, "user_name");
-
-  setCookie(res.headers, {
-    name: "user_name",
-    value: encodeURIComponent(JSON.stringify(params)),
-    path: "/",
-    sameSite: "Lax",
-    httpOnly: true,
-    secure: true,
-  });
-
-  return res;
-});
-
-app.get("/home", ({ json, params, url }) => {
-  const { searchParams } = url;
-
-  return json({
+  response.json({
     params,
     query: Object.fromEntries(searchParams),
   });
 });
 
-app.get("/no", ({ redirect, url }) => {
-  return redirect(`/home${url.search}`);
+app.get("/home", ({ params, url, response }) => {
+  const { searchParams } = url;
+
+  response.json({
+    params,
+    query: Object.fromEntries(searchParams),
+  });
 });
+
+app.get("/no", ({ response, url }) => {
+  response.redirect(`/home${url.search}`);
+});
+
+// SSE
+const { events, sendEvents } = createEventSource();
+
+setInterval(() => {
+  events.message({ name: "hey", data: Date.now() });
+}, 5_000);
+
+app.get("/events", sendEvents);
 
 app.listen();
 

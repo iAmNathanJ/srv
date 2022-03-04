@@ -1,13 +1,22 @@
-import { ResponseUtils } from "../utils/response.ts";
+import { Cookies } from "../cookies.ts";
+import type { SrvResponse } from "../utils/response.ts";
 
-export interface HandlerArgs extends ResponseUtils {
-  request: Request;
+export interface HandlerArgs {
   url: URL;
+  request: Request;
+  response: SrvResponse;
+  cookies: Cookies;
   params?: Record<string, string>;
   error?: Error;
 }
 
-export type RouteHandler = (args: HandlerArgs) => Response | Promise<Response>;
+export type RouteHandler = (
+  args: HandlerArgs,
+) => unknown | Promise<unknown>;
+
+export type ErrorRouteHandler = (
+  args: Partial<HandlerArgs>,
+) => Response | Promise<Response>;
 
 export type RouteMatcher = (reqPath: string) => {
   isMatch: boolean;

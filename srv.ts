@@ -1,43 +1,27 @@
 import { getConfig, ServerOptions } from "./config/boot.ts";
 import { createRouter } from "./router/router.ts";
-import { RouteHandler } from "./router/types.ts";
-import * as utils from "./utils/response.ts";
+import { ErrorRouteHandler } from "./router/types.ts";
+import { createApplication } from "./application.ts";
 
 export function srv(options: ServerOptions) {
-  const { location, controller } = getConfig(options);
+  const { location, controller, ...userOptions } = getConfig(options);
 
   const router = createRouter();
   const errorHandler = router.internalError;
+  const appHandle = createApplication(router, userOptions);
 
   const server = Deno.listen(options);
   controller.signal.addEventListener("abort", () => server.close());
 
-  function handleError(handle: RouteHandler) {
+  function handleError(handle: ErrorRouteHandler) {
     errorHandler.handle = handle;
   }
 
   function handleRequest({ request, respondWith }: Deno.RequestEvent): void {
-    const url = new URL(request.url);
-    const route = router.find(url.pathname, request.method);
-
     try {
-      respondWith(route.handle({
-        json: utils.json,
-        html: utils.html,
-        redirect: utils.redirect,
-        url,
-        request,
-        params: route.params,
-      }));
+      respondWith(appHandle({ request }));
     } catch (error) {
-      respondWith(errorHandler.handle({
-        json: utils.json,
-        html: utils.html,
-        redirect: utils.redirect,
-        url,
-        request,
-        error,
-      }));
+      respondWith(errorHandler.handle({ request, error }));
     }
   }
 

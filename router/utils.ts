@@ -1,10 +1,4 @@
-import {
-  HandlerArgs,
-  HTTPMethod,
-  RouteHandler,
-  RouteMatcher,
-  Routes,
-} from "./types.ts";
+import { HTTPMethod, RouteHandler, RouteMatcher, Routes } from "./types.ts";
 
 // characters allowed in path segments: . * + $ ( ) - _ ~ ! & ' , : ; = @
 // OR encoded %\d\d
@@ -49,35 +43,16 @@ export function validateRoutePath(routePath: string): void | never {
   }
 }
 
-export function createHEAD(handle: RouteHandler): RouteHandler {
-  return async (handlerArgs: HandlerArgs) => {
-    const response = (await handle(handlerArgs));
-    const responseLength = (await response.arrayBuffer()).byteLength;
-    const { status, statusText, headers } = response;
-
-    headers.set("content-length", `${responseLength}`);
-
-    return new Response(null, {
-      status,
-      statusText,
-      headers,
-    });
-  };
-}
-
 export function createOPTIONS(routes: Routes): RouteHandler {
-  return (handlerArgs: HandlerArgs) => {
+  return ({ url, response }) => {
     const allow = Object.keys(routes).filter((method) => {
       return routes[method as HTTPMethod]?.some((route) =>
-        route.match(handlerArgs.url.pathname)
+        route.match(url.pathname)
       );
     }).join(", ");
 
-    return new Response(null, {
-      status: 204,
-      headers: {
-        allow,
-      },
-    });
+    response.setBody(null);
+    response.setStatus(204);
+    response.setHeader("allow", allow);
   };
 }

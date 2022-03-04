@@ -1,10 +1,5 @@
 import { internalError, notFound } from "./defaults.ts";
-import {
-  createHEAD,
-  createMatcher,
-  createOPTIONS,
-  validateRoutePath,
-} from "./utils.ts";
+import { createMatcher, createOPTIONS, validateRoutePath } from "./utils.ts";
 import {
   HTTPMethod,
   ParsedRoute,
@@ -36,7 +31,7 @@ export function createRouter() {
     const match = createMatcher(routePath);
 
     addRoute({ handle, match }, method);
-    addRoute({ handle: createHEAD(handle), match }, HTTPMethod.HEAD);
+    addRoute({ handle: handle, match }, HTTPMethod.HEAD);
     addRoute({ handle: createOPTIONS(routes), match }, HTTPMethod.OPTIONS);
   }
 
@@ -78,15 +73,16 @@ export function createRouter() {
   }
 
   function staticHandler(routePath: string, dir = Deno.cwd()) {
-    addRoute({
-      handle: ({ request, url }) =>
-        staticResponse(request, url, routePath, dir),
-      match: createMatcher(routePath, false),
-    }, HTTPMethod.GET);
+    const handle: RouteHandler = async ({ request, url, response }) => {
+      // TODO: implement static response without using std
+      const res = await staticResponse(request, url, routePath, dir);
+      response.setHeaders(res.headers);
+      response.setBody(res.body);
+    };
+    const match = createMatcher(routePath, false);
+    addRoute({ handle, match }, HTTPMethod.GET);
+    addRoute({ handle, match }, HTTPMethod.HEAD);
   }
-
-  // TODO: implement OPTIONS
-  function options() {}
 
   return {
     internalError,

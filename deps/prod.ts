@@ -4,6 +4,7 @@ export {
   getCookies,
   setCookie,
 } from "https://deno.land/std@0.123.0/http/cookie.ts";
+export type { Cookie } from "https://deno.land/std@0.123.0/http/cookie.ts";
 export {
   Status,
   STATUS_TEXT,

@@ -1,26 +1,35 @@
 import { assertEquals } from "../deps/dev.ts";
-import { html, json, redirect } from "./response.ts";
+import { SrvResponse } from "./response.ts";
 
 const { test } = Deno;
 
 test("json returns a serialized JSON response", async () => {
-  const res = json({ foo: true });
+  const res = new SrvResponse();
+  res.json({ foo: true });
 
-  assertEquals(res.headers.get("content-type"), "application/json");
-  assertEquals(await res.json(), { foo: true });
+  const output = res.final();
+
+  assertEquals(output.headers.get("content-type"), "application/json");
+  assertEquals(await output.json(), { foo: true });
 });
 
 test("html returns an HTML string response", async () => {
-  const res = html("<html>");
+  const res = new SrvResponse();
+  res.html("<html>");
 
-  assertEquals(res.headers.get("content-type"), "text/html");
-  assertEquals(await res.text(), "<html>");
+  const output = res.final();
+
+  assertEquals(output.headers.get("content-type"), "text/html");
+  assertEquals(await output.text(), "<html>");
 });
 
 test("redirect returns an null response with 302", async () => {
-  const res = redirect("/some/other/page");
+  const res = new SrvResponse();
+  res.redirect("/some/other/page");
 
-  assertEquals(res.status, 302);
-  assertEquals(res.headers.get("location"), "/some/other/page");
-  assertEquals(await res.text(), "");
+  const output = res.final();
+
+  assertEquals(output.status, 302);
+  assertEquals(output.headers.get("location"), "/some/other/page");
+  assertEquals(await output.text(), "");
 });
