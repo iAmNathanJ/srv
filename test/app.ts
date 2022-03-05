@@ -40,7 +40,10 @@ app.get("/no", ({ response, url }) => {
   response.redirect(`/home${url.search}`);
 });
 
-// SSE
+app.get("/error", () => {
+  throw new Error("test error");
+});
+
 const { events, sendEvents } = createEventSource();
 
 setInterval(() => {

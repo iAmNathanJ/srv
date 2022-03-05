@@ -15,8 +15,8 @@ export type RouteHandler = (
 ) => unknown | Promise<unknown>;
 
 export type ErrorRouteHandler = (
-  args: Partial<HandlerArgs>,
-) => Response | Promise<Response>;
+  args: HandlerArgs & { error: Error },
+) => unknown | Promise<unknown>;
 
 export type RouteMatcher = (reqPath: string) => {
   isMatch: boolean;
