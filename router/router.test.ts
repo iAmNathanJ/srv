@@ -1,5 +1,5 @@
 import { assertEquals } from "../deps/dev.ts";
-import { createRouter } from "./router.ts";
+import { Router } from "./router.ts";
 import { notFound } from "./defaults.ts";
 import { HandlerArgs, HTTPMethod } from "./types.ts";
 import { SrvResponse } from "../utils/response.ts";
@@ -15,7 +15,7 @@ const handlers = {
 };
 
 test("router ensures the request method matches the invoked handler", () => {
-  const router = createRouter();
+  const router = new Router();
 
   router.get("/", handlers.GET);
   router.post("/", handlers.POST);
@@ -31,7 +31,7 @@ test("router ensures the request method matches the invoked handler", () => {
 });
 
 test("router can use one handler for all methods", () => {
-  const router = createRouter();
+  const router = new Router();
 
   router.use("/", handlers.GET);
 
@@ -49,7 +49,7 @@ test("router can use one handler for all methods", () => {
 // test("router can use one handler for all paths");
 
 test("router parses path params", () => {
-  const router = createRouter();
+  const router = new Router();
 
   router.use("/:param1/:param2", () => new Response());
 
@@ -59,7 +59,7 @@ test("router parses path params", () => {
 });
 
 test("router has a default 404 handler", () => {
-  const router = createRouter();
+  const router = new Router();
 
   const route = router.find("/nothing/here", HTTPMethod.ANY);
 
@@ -67,7 +67,7 @@ test("router has a default 404 handler", () => {
 });
 
 test("router serves static content", async () => {
-  const router = createRouter();
+  const router = new Router();
 
   router.static("/public", "test/public");
 

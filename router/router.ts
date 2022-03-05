@@ -1,4 +1,4 @@
-import { internalError, notFound } from "./defaults.ts";
+import { notFound } from "./defaults.ts";
 import { createMatcher, createOPTIONS, validateRoutePath } from "./utils.ts";
 import {
   HTTPMethod,
@@ -9,42 +9,46 @@ import {
 } from "./types.ts";
 import { staticResponse } from "../utils/static.ts";
 
-export function createRouter() {
-  const routes: Routes = {};
-  const parsedRouteCache = new Map<string, ParsedRoute>();
+export class Router {
+  #routes: Routes = {};
+  // TODO: LRU
+  #parsedRouteCache = new Map<string, ParsedRoute>();
 
-  function addRoute(route: Route, method: HTTPMethod) {
-    if (!Array.isArray(routes[method])) {
-      routes[method] = [];
+  addRoute = (route: Route, method: HTTPMethod) => {
+    if (!Array.isArray(this.#routes[method])) {
+      this.#routes[method] = [];
     }
 
-    routes[method]!.push(route);
-  }
+    this.#routes[method]!.push(route);
+  };
 
-  function use(
+  use = (
     routePath: string,
     handle: RouteHandler,
     method = HTTPMethod.ANY,
-  ) {
+  ) => {
     validateRoutePath(routePath);
 
     const match = createMatcher(routePath);
 
-    addRoute({ handle, match }, method);
-    addRoute({ handle: handle, match }, HTTPMethod.HEAD);
-    addRoute({ handle: createOPTIONS(routes), match }, HTTPMethod.OPTIONS);
-  }
+    this.addRoute({ handle, match }, method);
+    this.addRoute({ handle: handle, match }, HTTPMethod.HEAD);
+    this.addRoute(
+      { handle: createOPTIONS(this.#routes), match },
+      HTTPMethod.OPTIONS,
+    );
+  };
 
-  function find(reqPath: string, reqMethod: string): ParsedRoute {
+  find = (reqPath: string, reqMethod: string): ParsedRoute => {
     const cacheKey = `${reqMethod}_${reqPath}`;
-    if (parsedRouteCache.has(cacheKey)) {
-      return parsedRouteCache.get(cacheKey)!;
+    if (this.#parsedRouteCache.has(cacheKey)) {
+      return this.#parsedRouteCache.get(cacheKey)!;
     }
 
     let parsedRoute: ParsedRoute;
 
     // check explicit method first
-    for (const route of routes[reqMethod as HTTPMethod] ?? []) {
+    for (const route of this.#routes[reqMethod as HTTPMethod] ?? []) {
       const { isMatch, params } = route.match(reqPath);
 
       if (isMatch) {
@@ -55,7 +59,7 @@ export function createRouter() {
     }
 
     // check wildcard method second
-    for (const route of routes[HTTPMethod.ANY] ?? []) {
+    for (const route of this.#routes[HTTPMethod.ANY] ?? []) {
       const { isMatch, params } = route.match(reqPath);
 
       if (isMatch) {
@@ -67,12 +71,12 @@ export function createRouter() {
 
     const route = parsedRoute! ?? notFound;
 
-    parsedRouteCache.set(cacheKey, route);
+    this.#parsedRouteCache.set(cacheKey, route);
 
     return route;
-  }
+  };
 
-  function staticHandler(routePath: string, dir = Deno.cwd()) {
+  static = (routePath: string, dir = Deno.cwd()) => {
     const handle: RouteHandler = async ({ request, url, response }) => {
       // TODO: implement static response without using std
       const res = await staticResponse(request, url, routePath, dir);
@@ -80,30 +84,31 @@ export function createRouter() {
       response.setBody(res.body);
     };
     const match = createMatcher(routePath, false);
-    addRoute({ handle, match }, HTTPMethod.GET);
-    addRoute({ handle, match }, HTTPMethod.HEAD);
+    this.addRoute({ handle, match }, HTTPMethod.GET);
+    this.addRoute({ handle, match }, HTTPMethod.HEAD);
+  };
+
+  get routes() {
+    return this.#routes;
   }
 
-  return {
-    internalError,
-    routes,
-    find,
-    use,
-    static: staticHandler,
-    get(routePath: string, handler: RouteHandler) {
-      use(routePath, handler, HTTPMethod.GET);
-    },
-    post(routePath: string, handler: RouteHandler) {
-      use(routePath, handler, HTTPMethod.POST);
-    },
-    put(routePath: string, handler: RouteHandler) {
-      use(routePath, handler, HTTPMethod.PUT);
-    },
-    patch(routePath: string, handler: RouteHandler) {
-      use(routePath, handler, HTTPMethod.PATCH);
-    },
-    delete(routePath: string, handler: RouteHandler) {
-      use(routePath, handler, HTTPMethod.DELETE);
-    },
+  get = (routePath: string, handler: RouteHandler) => {
+    this.use(routePath, handler, HTTPMethod.GET);
+  };
+
+  post = (routePath: string, handler: RouteHandler) => {
+    this.use(routePath, handler, HTTPMethod.POST);
+  };
+
+  put = (routePath: string, handler: RouteHandler) => {
+    this.use(routePath, handler, HTTPMethod.PUT);
+  };
+
+  patch = (routePath: string, handler: RouteHandler) => {
+    this.use(routePath, handler, HTTPMethod.PATCH);
+  };
+
+  delete = (routePath: string, handler: RouteHandler) => {
+    this.use(routePath, handler, HTTPMethod.DELETE);
   };
 }

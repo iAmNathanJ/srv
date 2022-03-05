@@ -1,24 +1,15 @@
-import { createRouter } from "./router/router.ts";
+import { Router } from "./router/router.ts";
 import { Cookies } from "./cookies.ts";
 import { SrvResponse } from "./utils/response.ts";
 import { etagMiddleware } from "./utils/etag.ts";
-import {
-  ErrorRouteHandler,
-  HandlerArgs,
-  HTTPMethod,
-  RouteHandler,
-} from "./router/types.ts";
+import { HandlerArgs, HTTPMethod, RouteHandler } from "./router/types.ts";
 import { ServerOptions } from "./config/boot.ts";
+import { internalError } from "./router/defaults.ts";
 
 export function createApplication(options: Partial<ServerOptions>) {
-  const router = createRouter();
-  const errorHandler = router.internalError;
+  const router = new Router();
   const before: RouteHandler[] = [];
   const after = getAfter(options);
-
-  function handleError(handle: ErrorRouteHandler) {
-    errorHandler.handle = handle;
-  }
 
   const handleAppRequest = async ({ request }: { request: Request }) => {
     const url = new URL(request.url);
@@ -39,7 +30,7 @@ export function createApplication(options: Partial<ServerOptions>) {
       await route.handle(context);
       await Promise.all(after.map((a) => a(context)));
     } catch (error) {
-      // await errorHandler.handle({ request, error });
+      await internalError({ ...context, error });
     }
 
     return response.final();
@@ -47,7 +38,7 @@ export function createApplication(options: Partial<ServerOptions>) {
 
   return {
     ...router,
-    handleError,
+    internalError,
     handle: handleAppRequest,
   };
 }
