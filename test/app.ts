@@ -44,10 +44,10 @@ app.get("/error", () => {
   throw new Error("test error");
 });
 
-const { events, sendEvents } = createEventSource();
+const { eventSource, sendEvents } = createEventSource();
 
 setInterval(() => {
-  events.message({ name: "hey", data: Date.now() });
+  eventSource.dispatch({ event: "hello", data: Date.now() });
 }, 5_000);
 
 app.get("/events", sendEvents);
