@@ -5,11 +5,11 @@ Framework: abc
 Running 3s test @ http://0.0.0.0:8000/
   8 threads and 50 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.52ms    2.48ms  61.67ms   99.09%
-    Req/Sec     4.50k   505.83     4.73k    96.77%
-  111093 requests in 3.10s, 8.79MB read
-Requests/sec:  35824.99
-Transfer/sec:      2.84MB
+    Latency     1.53ms    2.75ms  64.65ms   99.00%
+    Req/Sec     4.59k     1.79k   31.10k    96.27%
+  109965 requests in 3.10s, 8.70MB read
+Requests/sec:  35471.16
+Transfer/sec:      2.81MB
 
 
 
@@ -19,26 +19,11 @@ Framework: aqua
 Running 3s test @ http://0.0.0.0:8000/
   8 threads and 50 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.06ms    1.39ms  40.88ms   99.10%
-    Req/Sec     6.08k     1.01k   12.47k    95.08%
-  147531 requests in 3.10s, 16.74MB read
-Requests/sec:  47532.58
-Transfer/sec:      5.39MB
-
-
-
-Framework: drash
-------------------------------------------------------------
-
-Running 3s test @ http://0.0.0.0:8000/
-  8 threads and 50 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    31.52ms   19.67ms 290.23ms   97.06%
-    Req/Sec   206.05     32.16   410.00     93.19%
-  4876 requests in 3.03s, 1.94MB read
-  Non-2xx or 3xx responses: 4876
-Requests/sec:   1610.33
-Transfer/sec:    655.77KB
+    Latency     1.10ms    1.35ms  39.66ms   99.12%
+    Req/Sec     5.79k     1.81k   24.94k    95.87%
+  139379 requests in 3.10s, 15.82MB read
+Requests/sec:  44925.69
+Transfer/sec:      5.10MB
 
 
 
@@ -48,11 +33,11 @@ Framework: oak
 Running 3s test @ http://0.0.0.0:8000/
   8 threads and 50 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     0.93ms    1.19ms  36.16ms   99.10%
-    Req/Sec     6.84k   729.39     7.98k    96.25%
-  163402 requests in 3.01s, 18.70MB read
-Requests/sec:  54328.69
-Transfer/sec:      6.22MB
+    Latency     1.17ms    1.40ms  43.33ms   99.05%
+    Req/Sec     5.42k   633.68     5.87k    96.25%
+  129310 requests in 3.01s, 14.80MB read
+Requests/sec:  43005.00
+Transfer/sec:      4.92MB
 
 
 
@@ -62,10 +47,10 @@ Framework: srv
 Running 3s test @ http://0.0.0.0:8000/
   8 threads and 50 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   765.04us  681.79us  26.27ms   98.98%
-    Req/Sec     7.93k     2.37k   33.24k    95.87%
-  191026 requests in 3.10s, 18.95MB read
-Requests/sec:  61595.88
-Transfer/sec:      6.11MB
+    Latency     0.88ms  646.06us  25.75ms   99.28%
+    Req/Sec     6.75k   483.89     7.23k    96.77%
+  166556 requests in 3.10s, 18.90MB read
+Requests/sec:  53723.58
+Transfer/sec:      6.10MB
 
 

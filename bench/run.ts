@@ -1,11 +1,9 @@
 import { CONNECTIONS, DURATION, PORT, THREADS } from "./config.ts";
 
-// await test("abc");
-// await test("aqua");
-// await test("drash");
+await test("abc");
+await test("aqua");
 await test("oak");
 await test("srv");
-// await test("opine"); // not working
 
 async function test(framework: string) {
   header(framework);
