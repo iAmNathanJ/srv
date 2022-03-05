@@ -14,8 +14,8 @@ import { srv } from "../mod.ts";
 
 const app = srv({ port: 8000 });
 
-app.get("/", () => {
-  return new Response("hello world!");
+app.get("/", ({ response }) => {
+  response.setBody("hello world!");
 });
 
 app.listen();
@@ -26,16 +26,16 @@ console.log(`listening: ${app.location.origin}`);
 ### Response Utilities
 
 ```ts
-app.get("/", ({ html }) => {
-  return html("<!DOCTYPE html>");
+app.get("/", ({ response }) => {
+  response.html("<!DOCTYPE html>");
 });
 
-app.get("/", ({ json }) => {
-  return json({ foo: true });
+app.get("/", ({ response }) => {
+  response.json({ foo: true });
 });
 
-app.get("/", ({ redirect }) => {
-  return redirect("somewhere/else");
+app.get("/", ({ response }) => {
+  response.redirect("somewhere/else");
 });
 ```
 
@@ -81,20 +81,30 @@ app.get("/posts/:category/:title", ({ params }) => {
 { category: "programming", title: "the-title" }
 ```
 
-### Notes on Route Handlers
-
-You must return a `Response` from all route handlers. Express and many other
-middleware frameworks expect route handlers to "decorate" each response as it
-moves through a stack of middleware. Srv expects you to return values. You are
-on the hook to create and modify the response object as needed. This model may
-seem a little less ergonomic, but is intended to emphasize explicit intent and
-reduce the sense of "magic."
-
-Middleware is not currently implemented. The primary compositional pattern used
-to handle requests is TBD.
+### Route Handler Arguments
 
 All route handlers are passed a single object the shape of
-[`HandlerArgs`](./types.ts#L4)
+[`HandlerArgs`](./router/types.ts#L4)
+
+---
+
+### Cookies
+todo
+
+### Etag
+todo
+
+### Server Sent Events
+todo
+
+### Server Configuration
+todo
+
+---
+
+### Extras
+
+Route handlers are automatically set up for [HEAD][HEAD] and [OPTIONS][OPTIONS] request methods.
 
 ---
 
@@ -134,18 +144,20 @@ continues, performance will be a key consideration.
 - [x] automatic OPTIONS responses
 - [ ] automatic 405 responses
 
-- [ ] cookie parsing, (encoding/decoding?)
+- [x] cookie parsing, (encoding/decoding?)
 - [ ] cookie signing/verification with key rotation
 - [ ] form data parsing
 
-- [ ] middleware? how to compose functionality against all routes is under
-      consideration.
+- [ ] middleware?
 
-- [ ] etag
+- [x] etag
 - [ ] vary
 - [ ] CSP
-- [ ] server sent events
+- [x] server sent events
 
 - [ ] logging
 
 - [ ] optimizations - LRU cache? workers?
+
+[HEAD]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
+[OPTIONS]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
