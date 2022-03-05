@@ -40,8 +40,8 @@ export function createEtag(body: Body): Promise<string> {
 }
 
 export async function etagMiddleware({ request, response }: HandlerArgs) {
+  // TODO: create allow or deny list for etag content types
   if (request.headers.get("accept") === "text/event-stream") {
-    console.log("not running etag");
     return;
   }
 
