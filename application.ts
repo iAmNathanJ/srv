@@ -1,10 +1,10 @@
 import { Router } from "./router/router.ts";
-import { Cookies } from "./cookies.ts";
+import { Cookies } from "./utils/cookies.ts";
 import { SrvResponse } from "./utils/response.ts";
 import { etagMiddleware } from "./utils/etag.ts";
-import { HandlerArgs, HTTPMethod, RouteHandler } from "./router/types.ts";
 import { ServerOptions } from "./config/boot.ts";
 import { internalError } from "./router/defaults.ts";
+import { HandlerArgs, HTTPMethod, RouteHandler } from "./router/types.ts";
 
 export function createApplication(options: Partial<ServerOptions>) {
   const router = new Router();

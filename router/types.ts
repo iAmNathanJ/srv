@@ -1,5 +1,5 @@
-import { Cookies } from "../cookies.ts";
-import type { SrvResponse } from "../utils/response.ts";
+import { SrvResponse } from "../utils/response.ts";
+import { Cookies } from "../utils/cookies.ts";
 
 export interface HandlerArgs {
   url: URL;

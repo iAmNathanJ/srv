@@ -1,4 +1,4 @@
-import { Cookie, deleteCookie, getCookies, setCookie } from "./deps/prod.ts";
+import { Cookie, deleteCookie, getCookies, setCookie } from "../deps/prod.ts";
 
 export class Cookies {
   #cookies: Record<string, string> | null = null;
